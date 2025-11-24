@@ -121,11 +121,15 @@ function copy() {
 	then
 		#Если указанный файл существует в DST:
 		if [ -f "$dst/$ind" ]; then
-			src_file="$src/$ind"
-			dst_file="$dst/$ind"
-			if [[ "$src_file" -nt "$dst_file" ]] || [[ "$dst_file" -nt "$src_file" ]]; then
+
+			src_file="$src/$ind"; src_size=$(stat -c %s "$src_file")
+			dst_file="$dst/$ind"; dst_size=$(stat -c %s "$dst_file")
+
+			if [[ "$src_file" -nt "$dst_file" ]] ||
+			   [[ "$dst_file" -nt "$src_file" ]] ||
+			   [[ $src_size -ne $dst_size ]]; then
 				if [ -z "$arg_r" ]; then
-					echo "Заменить файл '$dst_file' более старым/новым '$src_file'? [y/n]:"
+					echo "Заменить файл '$dst_file' измененным '$src_file'? [y/n]:"
 					if [ $(dialog 'y' 'n') == 'y' ]
 					then cp -a "$src_file" "$dst/$dir"
 					fi
